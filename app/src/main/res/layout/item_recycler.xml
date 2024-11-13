@@ -26,7 +26,7 @@
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="16dp" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/karaterWayang"
@@ -35,8 +35,8 @@
         android:layout_marginTop="4dp"
         android:text="karakterWayang"
         android:textColor="#009688"
-        app:layout_constraintTop_toBottomOf="@+id/namaWayang"
-        tools:layout_editor_absoluteX="124dp" />
+        app:layout_constraintStart_toStartOf="@+id/namaWayang"
+        app:layout_constraintTop_toBottomOf="@+id/namaWayang" />
 
     <TextView
         android:id="@+id/deskripsiWayang"
