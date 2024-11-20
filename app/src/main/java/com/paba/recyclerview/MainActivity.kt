@@ -1,8 +1,12 @@
 package com.paba.recyclerview
+
+import android.content.DialogInterface
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -10,14 +14,18 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.lang.ProcessBuilder.Redirect.Type
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var _nama: Array<String>
-    private lateinit var _karakter: Array<String>
-    private lateinit var _deskripsi: Array<String>
-    private lateinit var _gambar: Array<String>
-    private lateinit var _rvWayang: RecyclerView
+    private var _nama: MutableList<String> = emptyList<String>().toMutableList()
+    private var _karakter: MutableList<String> = emptyList<String>().toMutableList()
+    private var _deskripsi: MutableList<String> = emptyList<String>().toMutableList()
+    private var _gambar: MutableList<String> = emptyList<String>().toMutableList()
 
+    lateinit var sp : SharedPreferences
+    private lateinit var _rvWayang: RecyclerView
     private var arwayang = arrayListOf<wayang>()
 
 
@@ -31,20 +39,46 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+
+
         _rvWayang = findViewById<RecyclerView>(R.id.rvWayang)
-        siapkanData()
+        sp = getSharedPreferences("dataSP", MODE_PRIVATE)
+        val gson = Gson()
+        val isiSP = sp.getString("spWayang", null)
+        val type = object : TypeToken<ArrayList<wayang>> () {}.type
+        if(isiSP != null){
+            arwayang = gson.fromJson(isiSP, type)
+        }
+
+        if(arwayang.size == 0){
+            siapkanData()
+        } else {
+            arwayang.forEach{
+                _nama.add(it.nama)
+                _gambar.add(it.foto)
+                _deskripsi.add(it.deskripsi)
+                _karakter.add(it.karakter)
+
+            }
+            arwayang.clear()
+        }
+
+//        siapkanData()
         tambahData()
         tampilkanData()
     }
 
     fun siapkanData(){
-        _nama = resources.getStringArray(R.array.namaWayang)
-        _deskripsi = resources.getStringArray(R.array.deskripsiWayang)
-        _karakter = resources.getStringArray(R.array.karakterUtamaWayang)
-        _gambar = resources.getStringArray(R.array.gambarWayang)
+        _nama = resources.getStringArray(R.array.namaWayang).toMutableList()
+        _deskripsi = resources.getStringArray(R.array.deskripsiWayang).toMutableList()
+        _karakter = resources.getStringArray(R.array.karakterUtamaWayang).toMutableList()
+        _gambar = resources.getStringArray(R.array.gambarWayang).toMutableList()
     }
 
     fun tambahData(){
+        val gson = Gson()
+        val editor = sp.edit()
+        arwayang.clear()
         for (position: Int in _nama.indices){
             val data = wayang(
                 _gambar[position],
@@ -55,6 +89,9 @@ class MainActivity : AppCompatActivity() {
 
             arwayang.add(data)
         }
+        val json = gson.toJson(arwayang)
+        editor.putString("spWayang", json)
+        editor.apply()
     }
 
     fun tampilkanData(){
@@ -74,6 +111,33 @@ class MainActivity : AppCompatActivity() {
 
                 intent.putExtra("kirimData", data)
                 startActivity(intent)
+            }
+
+            override fun delData(pos: Int) {
+                AlertDialog.Builder(this@MainActivity)
+                    .setTitle("HAPUS DATA")
+                    .setMessage("Apakah Benar Data " + _nama[pos]+" akan dihapus ?")
+                    .setPositiveButton(
+                        "HAPUS",
+                        DialogInterface.OnClickListener { dialog, which ->
+                            _gambar.removeAt(pos)
+                            _nama.removeAt(pos)
+                            _deskripsi.removeAt(pos)
+                            _karakter.removeAt(pos)
+                            tambahData()
+                            tampilkanData()
+                        }
+                    )
+                    .setNegativeButton(
+                        "BATAL",
+                        DialogInterface.OnClickListener { dialog, which ->
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Data Batal Dihapus",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    ).show()
             }
         })
 

@@ -1,9 +1,11 @@
 package com.paba.recyclerview
+
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView.OnItemClickListener
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -39,6 +41,10 @@ class adapterRecView(private val listwayang: ArrayList<wayang>): RecyclerView
         holder._fotoWayang.setOnClickListener{
             onItemClickCallback.onItemClicked(listwayang[position])
         }
+
+        holder._btnHapus.setOnClickListener {
+            onItemClickCallback.delData(position)
+        }
     }
 
     override fun getItemCount(): Int {
@@ -49,6 +55,7 @@ class adapterRecView(private val listwayang: ArrayList<wayang>): RecyclerView
 
     interface OnItemClickCallback {
         fun onItemClicked(data:wayang)
+        fun delData(pos:Int)
     }
 
     fun setOnItemClickCallback(onItemClickCallback: OnItemClickCallback){
@@ -57,8 +64,10 @@ class adapterRecView(private val listwayang: ArrayList<wayang>): RecyclerView
 
     inner class ListViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView){
         var _namaWayang = itemView.findViewById<TextView>(R.id.namaWayang)
-        var _karakterWayang = itemView.findViewById<TextView>(R.id.karaterWayang)
+        var _karakterWayang = itemView.findViewById<TextView>(R.id.karakterWayang)
         var _deskripsiWayang = itemView.findViewById<TextView>(R.id.deskripsiWayang)
         var _fotoWayang = itemView.findViewById<ImageView>(R.id.gambarWayang)
+
+        var _btnHapus = itemView.findViewById<Button>(R.id.delBtn)
     }
 }
